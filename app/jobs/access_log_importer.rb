@@ -28,16 +28,7 @@ class AccessLogImporter
       records = read(contents)
       Rails.logger.info("#{object.key} - count: #{records.size}")
 
-      access_logs = records.map do |r|
-        params = COLUMNS.map { |c| [c, r[c]] }.to_h
-        params[:requested_at] = Time.zone.at(r['time'])
-
-        AccessLog.new(params)
-      end
-
-      transaction = InsertTransaction.new(AccessLog)
-      access_logs.each { |access_log| transaction.push(access_log) }
-      transaction.flush
+      insert(records)
     end
 
     Rails.logger.info("#{objects.size} files imported - #{format('%.1f', (Time.zone.now - proc_start_at) * 1000)}ms")
@@ -66,5 +57,18 @@ class AccessLogImporter
       lines = log.split("\n")
       lines.map { |line| JSON.parse(line) }
     end
+  end
+
+  def insert(records)
+    access_logs = records.map do |r|
+      params = COLUMNS.map { |c| [c, r[c]] }.to_h
+      params[:requested_at] = Time.zone.at(r['time'])
+
+      AccessLog.new(params)
+    end
+
+    transaction = InsertTransaction.new(AccessLog)
+    access_logs.each { |access_log| transaction.push(access_log) }
+    transaction.flush
   end
 end
