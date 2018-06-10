@@ -1,0 +1,49 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/rails-api-app
+    docker:
+      - image: circleci/ruby:2.5.1
+        environment:
+          TZ: /usr/share/zoneinfo/Asia/Tokyo
+          RAILS_ENV: test
+      - image: postgres:9.6
+        environment:
+          TZ: /usr/share/zoneinfo/UTC
+          POSTGRES_USER: ubuntu
+    steps:
+      - checkout
+
+      - restore_cache:
+          name: Restore bundle cache
+          key: rails-api-app-{{ checksum "Gemfile.lock" }}
+
+      - run:
+          name: Run bundle install
+          command: bundle install --path vendor/bundle
+
+      - save_cache:
+          name: Store bundle cache
+          key: rails-api-app-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+
+      - run:
+          name: Create DB
+          command: bundle exec rake db:create
+
+      - run:
+          name: Migrate DB
+          command: bundle exec rake db:migrate
+
+      - run:
+          name: chmod +x ./lint.sh
+          command: chmod +x ./lint.sh
+
+      - run:
+          name: ./lint.sh
+          command: ./lint.sh
+
+      - run:
+          name: Run rspec
+          command: bundle exec rspec spec/
