@@ -6,9 +6,12 @@ ruby '2.5.1'
 gem 'rails', '~> 5.2.0'
 gem 'pg', '~> 1.0.0'
 gem 'puma', '~> 3.11'
+gem 'aws-sdk-s3', '1.13.0'
 
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'beautiful-log', '~> 0.2.2'
+gem 'activerecord-import', '~> 0.23.0'
+gem 'parallel', '~> 1.12.1'
 
 group :development, :test do
   gem 'rubocop', '0.49.1', require: false
