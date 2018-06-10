@@ -1,3 +1,4 @@
+# to avoid Circular dependency detected error
 require 'access_log'
 require 'insert_transaction'
 
